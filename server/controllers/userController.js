@@ -71,16 +71,17 @@ export const login = async (req, res) => {
 // Controller to update user profile details
 export const updateProfile = async (req, res) => {
     try {
-        const { profilePic, bio, fullName } = req.body; // <-- CORRECTED FIELD NAME
+        const { profilePic, bio, fullName } = req.body; 
         const userId = req.user._id;
         let updatedFields = {};
         if (bio !== undefined) updatedFields.bio = bio;
         if (fullName !== undefined) updatedFields.fullName = fullName;
 
         if (profilePic) {
-            const upload = await cloudinary.uploader.upload(profilePic);
-            updatedFields.profilePic = upload.secure_url;
-        }
+    const upload = await cloudinary.uploader.upload(profilePic, { invalidate: true });
+    updatedFields.profilePic = upload.secure_url;
+}
+
 
         const updatedUser = await User.findByIdAndUpdate(
             userId,

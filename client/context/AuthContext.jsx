@@ -9,7 +9,6 @@ axios.defaults.baseURL = backendUrl
 export const AuthContext = createContext()
 
 export const AuthProvider = ({ children }) => {
-
     const [token, setToken] = useState(localStorage.getItem('token'))
     const [authUser, setAuthUser] = useState(null)
     const [onlineUser, setOnlineUser] = useState([])
@@ -24,7 +23,7 @@ export const AuthProvider = ({ children }) => {
                 connectSocket(data.user)
             }
         } catch (error) {
-            toast.error(error.message)
+            toast.error(error.response?.data?.message || error.message)
         }
     }
 
@@ -35,7 +34,7 @@ export const AuthProvider = ({ children }) => {
             if (data.success) {
                 setAuthUser(data.userData)
                 connectSocket(data.userData)
-                axios.defaults.headers.common['token'] = data.token
+                axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`
                 setToken(data.token)
                 localStorage.setItem('token', data.token)
                 toast.success(data.message)
@@ -43,7 +42,7 @@ export const AuthProvider = ({ children }) => {
                 toast.error(data.message)
             }
         } catch (error) {
-            toast.error(error.message)
+            toast.error(error.response?.data?.message || error.message)
         }
     }
 
@@ -53,7 +52,7 @@ export const AuthProvider = ({ children }) => {
         setToken(null)
         setAuthUser(null)
         setOnlineUser([])
-        delete axios.defaults.headers.common['token']
+        delete axios.defaults.headers.common['Authorization']
         toast.success('Logged out successfully')
         if (socket) {
             socket.disconnect()
@@ -70,7 +69,7 @@ export const AuthProvider = ({ children }) => {
                 toast.success('Profile updated successfully')
             }
         } catch (error) {
-            toast.error(error.message)
+            toast.error(error.response?.data?.message || error.message)
         }
     }
 
@@ -95,14 +94,22 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         if (token) {
-            axios.defaults.headers.common['token'] = token
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+            checkAuth()
         }
-        checkAuth()
         // eslint-disable-next-line
     }, [token])
 
+    // Optional: Clean up socket on unmount
+    useEffect(() => {
+        return () => {
+            if (socket) {
+                socket.disconnect()
+            }
+        }
+    }, [])
+
     const value = {
-        axios,
         authUser,
         onlineUser,
         socket,

@@ -45,7 +45,7 @@ const ProfilePage = () => {
       await updateProfile({ profilePic: base64Image, fullName: name, bio })
       navigate('/')
     }
-    // If you want to handle errors, you can add reader.onerror logic here
+    // Optionally handle reader.onerror here
   }
 
   return (
@@ -62,9 +62,14 @@ const ProfilePage = () => {
               hidden
             />
             <img
-              src={preview || assets.avatar_icon}
+              src={
+                preview ||
+                (authUser?.profilePic
+                  ? `${authUser.profilePic}?t=${Date.now()}`
+                  : assets.avatar_icon)
+              }
               alt='Profile Preview'
-              className={`w-12 h-12 ${selectedImg ? 'rounded-full' : ''}`}
+              className='w-12 h-12 rounded-full'
             />
             Upload Profile Image
           </label>
@@ -92,7 +97,7 @@ const ProfilePage = () => {
           </button>
         </form>
         <img
-          className={`max-w-44 aspect-square rounded-full mx-10 max-sm:mt-10`}
+          className='max-w-44 aspect-square rounded-full mx-10 max-sm:mt-10'
           src={assets.logo_icon}
           alt='Logo'
         />
