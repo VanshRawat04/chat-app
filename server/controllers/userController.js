@@ -71,7 +71,7 @@ export const login = async (req, res) => {
 // Controller to update user profile details
 export const updateProfile = async (req, res) => {
     try {
-        const { profilePic, bio, fullName } = req.body;
+        const { profilePic, bio, fullName } = req.body; // <-- CORRECTED FIELD NAME
         const userId = req.user._id;
         let updatedFields = {};
         if (bio !== undefined) updatedFields.bio = bio;

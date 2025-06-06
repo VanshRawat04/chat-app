@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import assets from '../assets/assets'
+import { AuthContext } from '../../context/AuthContext.jsx'
 
 const LoginPage = () => {
   const [currState, setCurrState] = useState("Sign Up")
@@ -10,9 +11,11 @@ const LoginPage = () => {
   const [isDataSubmitted, setIsDataSubmitted] = useState(false)
   const [agree, setAgree] = useState(false)
 
+  const { login } = useContext(AuthContext)
+
   // Unified form submission handler
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const onSubmitHandler = (event) => {
+    event.preventDefault()
     if (!agree) {
       alert("You must agree to the terms to proceed.")
       return
@@ -21,20 +24,17 @@ const LoginPage = () => {
       setIsDataSubmitted(true)
       return
     }
-    // Handle actual sign up or login logic here
-    alert("Form submitted!")
+    // Prepare payload based on state
+    let payload
+    if (currState === 'Sign Up') {
+      payload = { fullName, email, password, bio }
+    } else {
+      payload = { email, password }
+    }
+    // Call login function with appropriate state
+    login(currState === 'Sign Up' ? 'signup' : 'login', payload)
     // Optionally reset state here
-  }
-
-  // Toggle between Sign Up and Login, and reset all fields
-  const toggleState = () => {
-    setCurrState(currState === "Sign Up" ? "Login" : "Sign Up")
-    setIsDataSubmitted(false)
-    setFullName("")
-    setEmail("")
-    setPassword("")
-    setBio("")
-    setAgree(false)
+    // alert("Form submitted!") // Consider using toast instead in production
   }
 
   return (
@@ -47,7 +47,7 @@ const LoginPage = () => {
       {/*----right: Form----*/}
       <form
         className='border-2 bg-white/8 text-white border-gray-500 p-6 flex flex-col gap-6 rounded-lg shadow-lg'
-        onSubmit={handleSubmit}
+        onSubmit={onSubmitHandler}
       >
         <h2 className='font-medium text-2xl flex justify-between items-center'>
           {currState}
